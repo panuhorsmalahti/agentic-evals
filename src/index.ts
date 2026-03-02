@@ -1,1 +1,5 @@
-export type EvalVerdict = "pass" | "fail";
+import { ai } from "./interceptors/ai";
+
+export const interceptors = {
+  ai
+}

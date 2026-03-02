@@ -1,62 +1,83 @@
-import { wrapLanguageModel } from "ai";
-import type { LanguageModelV3 } from "@ai-sdk/provider";
-import { FileCache, hashParams } from "../cache";
+import type { LanguageModelV3, LanguageModelV3CallOptions } from "@ai-sdk/provider";
+import { FileCache } from "../cache";
+import { createHash } from "crypto";
 
 export interface WrapModelOptions {
   cacheDir?: string;
 }
 
-function wrapModel(
-  model: LanguageModelV3,
-  { cacheDir = ".eval-cache" }: WrapModelOptions = {}
-): LanguageModelV3 {
-  const cache = new FileCache(cacheDir);
+const expectedSpecVersion = "v3";
 
-  return wrapLanguageModel({
-    model,
-    middleware: {
-      specificationVersion: "v3",
-      wrapGenerate: async ({ doGenerate, params }) => {
-        const key = hashParams(params);
-        const cached = cache.get(key);
+export function hashParams(params: LanguageModelV3CallOptions): string {
+  // Exclude fields that don't affect model output
+  const { abortSignal: _a, headers: _h, ...rest } = params;
 
-        if (cached !== undefined) {
-          console.log("Cache hit for params:", params, ". Returning cached result: ", cached);
-
-          return cached;
-        }
-
-        const result = await doGenerate();
-
-        console.log("Cache miss for params:", params, ". Caching result: ", result);
-
-        cache.set(key, result);
-
-        return result;
-      },
-    },
+  const serialized = JSON.stringify(rest, (_key, value: unknown) => {
+    if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+      return Object.fromEntries(
+        Object.entries(value as Record<string, unknown>).sort(([a], [b]) =>
+          a.localeCompare(b)
+        )
+      );
+    }
+    return value;
   });
+
+  console.log("Hashing params:", serialized);
+
+  return createHash("sha256").update(serialized).digest("hex");
 }
 
-const expectedSpecVersion = "v3";
 
 export const ai = async (): Promise<typeof aiModule> => {
   const aiModule = await import("ai");
 
+  function wrapModel(
+    model: LanguageModelV3,
+    { cacheDir = ".eval-cache" }: WrapModelOptions = {}
+  ): LanguageModelV3 {
+    const cache = new FileCache(cacheDir);
+
+    return aiModule.wrapLanguageModel({
+      model,
+      middleware: {
+        specificationVersion: "v3",
+        wrapGenerate: async ({ doGenerate, params }) => {
+          const key = hashParams(params);
+          const cached = cache.get(key);
+
+          if (cached !== undefined) {
+            console.log("Cache hit for params:", params, ". Returning cached result: ", cached);
+
+            return cached;
+          }
+
+          const result = await doGenerate();
+
+          console.log("Cache miss for params:", params, ". Caching result: ", result);
+
+          cache.set(key, result);
+
+          return result;
+        },
+      },
+    });
+  }
+
   const generateText: any = async (params: Parameters<(typeof aiModule)["generateText"]>[0]) => {
     console.log("Intercepted generateText call with params:", params);
-    
+
     if (typeof params.model === "string") {
       throw new Error("Only LanguageModelV3 instances are supported in this interceptor. Please create a model instance using the provider (e.g., openai) and pass it to generateText.");
     }
 
     if (params.model.specificationVersion !== expectedSpecVersion) {
       throw new Error(`Unsupported model specification version: ${params.model.specificationVersion}. Expected ${expectedSpecVersion}.`);
-    } 
+    }
 
     const wrappedModel = wrapModel(params.model);
     console.log("Wrapped model");
-    
+
     return aiModule.generateText({
       ...params,
       model: wrappedModel,
