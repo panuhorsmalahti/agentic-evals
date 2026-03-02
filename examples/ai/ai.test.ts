@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { getResponse } from "./ai";
+import { getResponse, getResponseWithTools } from "./ai";
 
 vi.mock("ai", async () => {
   const { interceptors } = await import("../../src/index");
@@ -9,10 +9,20 @@ vi.mock("ai", async () => {
   return await interceptors.ai();
 });
 
-describe("getResponse", () => {
-  it("should return text from generateText", async () => {
-    const result = await getResponse();
+describe("ai", () => {
+  describe("getResponse", () => {
+    it("should return text from generateText", async () => {
+      const result = await getResponse();
 
-    expect(result).toBe("The capital of France is Paris.");
+      expect(result).toBe("The capital of France is Paris.");
+    });
+  });
+
+  describe("getResponseWithTools", () => {
+    it("should return text from generateText with tools", async () => {
+      const result = await getResponseWithTools();
+
+      expect(result).toBeTypeOf("string");
+    });
   });
 });

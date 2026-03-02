@@ -1,0 +1,343 @@
+{
+  "068daa53245e348cbabf94fab9e5456f9c4d59b2c7fff0f9299be4bebee36605": {
+    "timestamp": 1772491532802,
+    "value": {
+      "content": [
+        {
+          "type": "text",
+          "text": "The capital of France is Paris."
+        }
+      ],
+      "finishReason": {
+        "unified": "stop"
+      },
+      "usage": {
+        "inputTokens": {
+          "total": 27,
+          "noCache": 27,
+          "cacheRead": 0
+        },
+        "outputTokens": {
+          "total": 17,
+          "text": 17,
+          "reasoning": 0
+        },
+        "raw": {
+          "input_tokens": 27,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 17,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      },
+      "request": {
+        "body": {
+          "model": "gpt-5.1",
+          "input": [
+            {
+              "role": "developer",
+              "content": "You are a helpful assistant for testing AI models."
+            },
+            {
+              "role": "user",
+              "content": [
+                {
+                  "type": "input_text",
+                  "text": "What is the capital of France?"
+                }
+              ]
+            }
+          ],
+          "max_output_tokens": 2000
+        }
+      },
+      "response": {
+        "id": "resp_0a74b6b882293b7f0069a6130bd258819792d10855dd5f993c",
+        "timestamp": "2026-03-02T22:45:31.000Z",
+        "modelId": "gpt-5.1-2025-11-13",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cf-cache-status": "DYNAMIC",
+          "cf-ray": "9d63eea959fa8d65-HEL",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json",
+          "date": "Mon, 02 Mar 2026 22:45:32 GMT",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "transfer-encoding": "chunked",
+          "x-content-type-options": "nosniff",
+          "x-ratelimit-limit-requests": "15000",
+          "x-ratelimit-limit-tokens": "40000000",
+          "x-ratelimit-remaining-requests": "14999",
+          "x-ratelimit-remaining-tokens": "40000000",
+          "x-ratelimit-reset-requests": "4ms",
+          "x-ratelimit-reset-tokens": "0s",
+          "x-request-id": "req_bfb71e349ac04cfd9c78dd38ad362e7b"
+        },
+        "body": {
+          "id": "resp_0a74b6b882293b7f0069a6130bd258819792d10855dd5f993c",
+          "object": "response",
+          "created_at": 1772491531,
+          "status": "completed",
+          "background": false,
+          "billing": {
+            "payer": "developer"
+          },
+          "completed_at": 1772491532,
+          "error": null,
+          "frequency_penalty": 0,
+          "incomplete_details": null,
+          "instructions": null,
+          "max_output_tokens": 2000,
+          "max_tool_calls": null,
+          "model": "gpt-5.1-2025-11-13",
+          "output": [
+            {
+              "id": "msg_0a74b6b882293b7f0069a6130c6734819781ad47de065de84a",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "The capital of France is Paris."
+                }
+              ],
+              "role": "assistant"
+            }
+          ],
+          "parallel_tool_calls": true,
+          "presence_penalty": 0,
+          "previous_response_id": null,
+          "prompt_cache_key": null,
+          "prompt_cache_retention": null,
+          "reasoning": {
+            "effort": "none",
+            "summary": null
+          },
+          "safety_identifier": null,
+          "service_tier": "default",
+          "store": true,
+          "temperature": 1,
+          "text": {
+            "format": {
+              "type": "text"
+            },
+            "verbosity": "medium"
+          },
+          "tool_choice": "auto",
+          "tools": [],
+          "top_logprobs": 0,
+          "top_p": 1,
+          "truncation": "disabled",
+          "usage": {
+            "input_tokens": 27,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 17,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 44
+          },
+          "user": null,
+          "metadata": {}
+        }
+      },
+      "providerMetadata": {
+        "openai": {
+          "responseId": "resp_0a74b6b882293b7f0069a6130bd258819792d10855dd5f993c",
+          "serviceTier": "default"
+        }
+      },
+      "warnings": []
+    }
+  },
+  "ce3bf220969f953fde5345c22ec46cf877b63204ad3b3a0ce1a3ee6b16836329": {
+    "timestamp": 1772491534161,
+    "value": {
+      "content": [
+        {
+          "type": "tool-call",
+          "toolCallId": "call_s4ecofcbVa573UQPLIdanTpE",
+          "toolName": "getStreetAddress",
+          "input": "{}"
+        }
+      ],
+      "finishReason": {
+        "unified": "tool-calls"
+      },
+      "usage": {
+        "inputTokens": {
+          "total": 66,
+          "noCache": 66,
+          "cacheRead": 0
+        },
+        "outputTokens": {
+          "total": 21,
+          "text": 21,
+          "reasoning": 0
+        },
+        "raw": {
+          "input_tokens": 66,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 21,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      },
+      "request": {
+        "body": {
+          "model": "gpt-5.1",
+          "input": [
+            {
+              "role": "developer",
+              "content": "You are a helpful assistant for testing AI models and you prefer to call tools."
+            },
+            {
+              "role": "user",
+              "content": [
+                {
+                  "type": "input_text",
+                  "text": "What is your street address?"
+                }
+              ]
+            }
+          ],
+          "max_output_tokens": 1000,
+          "tools": [
+            {
+              "type": "function",
+              "name": "getStreetAddress",
+              "description": "Returns the current street address of the assistant.",
+              "parameters": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          ],
+          "tool_choice": "auto"
+        }
+      },
+      "response": {
+        "id": "resp_0e5606032c4d35a40069a6130d4998819681947203c3e6f795",
+        "timestamp": "2026-03-02T22:45:33.000Z",
+        "modelId": "gpt-5.1-2025-11-13",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cf-cache-status": "DYNAMIC",
+          "cf-ray": "9d63eeb0bc828d65-HEL",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json",
+          "date": "Mon, 02 Mar 2026 22:45:34 GMT",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "transfer-encoding": "chunked",
+          "x-content-type-options": "nosniff",
+          "x-ratelimit-limit-requests": "15000",
+          "x-ratelimit-limit-tokens": "40000000",
+          "x-ratelimit-remaining-requests": "14999",
+          "x-ratelimit-remaining-tokens": "40000000",
+          "x-ratelimit-reset-requests": "4ms",
+          "x-ratelimit-reset-tokens": "0s",
+          "x-request-id": "req_5d6e6c79d7454ce882447d172b87b2d2"
+        },
+        "body": {
+          "id": "resp_0e5606032c4d35a40069a6130d4998819681947203c3e6f795",
+          "object": "response",
+          "created_at": 1772491533,
+          "status": "completed",
+          "background": false,
+          "billing": {
+            "payer": "developer"
+          },
+          "completed_at": 1772491534,
+          "error": null,
+          "frequency_penalty": 0,
+          "incomplete_details": null,
+          "instructions": null,
+          "max_output_tokens": 1000,
+          "max_tool_calls": null,
+          "model": "gpt-5.1-2025-11-13",
+          "output": [
+            {
+              "id": "fc_0e5606032c4d35a40069a6130dd6948196a3f31a5579d81a70",
+              "type": "function_call",
+              "status": "completed",
+              "arguments": "{}",
+              "call_id": "call_s4ecofcbVa573UQPLIdanTpE",
+              "name": "getStreetAddress"
+            }
+          ],
+          "parallel_tool_calls": true,
+          "presence_penalty": 0,
+          "previous_response_id": null,
+          "prompt_cache_key": null,
+          "prompt_cache_retention": null,
+          "reasoning": {
+            "effort": "none",
+            "summary": null
+          },
+          "safety_identifier": null,
+          "service_tier": "default",
+          "store": true,
+          "temperature": 1,
+          "text": {
+            "format": {
+              "type": "text"
+            },
+            "verbosity": "medium"
+          },
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "type": "function",
+              "description": "Returns the current street address of the assistant.",
+              "name": "getStreetAddress",
+              "parameters": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false,
+                "required": []
+              },
+              "strict": true
+            }
+          ],
+          "top_logprobs": 0,
+          "top_p": 1,
+          "truncation": "disabled",
+          "usage": {
+            "input_tokens": 66,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 21,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 87
+          },
+          "user": null,
+          "metadata": {}
+        }
+      },
+      "providerMetadata": {
+        "openai": {
+          "responseId": "resp_0e5606032c4d35a40069a6130d4998819681947203c3e6f795",
+          "serviceTier": "default"
+        }
+      },
+      "warnings": []
+    }
+  }
+}

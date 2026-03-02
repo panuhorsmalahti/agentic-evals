@@ -1,6 +1,34 @@
-import type { LanguageModelV3, LanguageModelV3CallOptions } from "@ai-sdk/provider";
+import type { LanguageModelV3, LanguageModelV3CallOptions, LanguageModelV3GenerateResult } from "@ai-sdk/provider";
 import { FileCache } from "../cache";
 import { createHash } from "crypto";
+
+const SENSITIVE_HEADERS = new Set([
+  "openai-organization",
+  "openai-processing-ms",
+  "openai-project",
+  "openai-version",
+  "server",
+  "set-cookie",
+]);
+
+function sanitizeResult(result: LanguageModelV3GenerateResult): LanguageModelV3GenerateResult {
+  return {
+    ...result,
+    content: result.content.map(({ providerMetadata: _, ...item }) => item as typeof item),
+    response: result.response
+      ? {
+          ...result.response,
+          headers: result.response.headers
+            ? Object.fromEntries(
+                Object.entries(result.response.headers).filter(
+                  ([key]) => !SENSITIVE_HEADERS.has(key.toLowerCase())
+                )
+              )
+            : undefined,
+        }
+      : undefined,
+  };
+}
 
 export interface WrapModelOptions {
   cacheFile?: string;
@@ -57,7 +85,7 @@ export const ai = async (): Promise<typeof aiModule> => {
 
           console.log("Cache miss for params:", params, ". Caching result: ", result);
 
-          await cache.set(key, result);
+          await cache.set(key, sanitizeResult(result));
 
           return result;
         },

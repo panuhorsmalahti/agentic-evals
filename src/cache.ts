@@ -21,7 +21,12 @@ export class FileCache {
   private async read(): Promise<CacheStore> {
     if (!existsSync(this.file)) return {};
 
-    return JSON.parse(await fs.readFile(this.file, "utf-8")) as CacheStore;
+    return JSON.parse(await fs.readFile(this.file, "utf-8"), (_key, value) => {
+      if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+        return new Date(value);
+      }
+      return value;
+    }) as CacheStore;
   }
 
   private prune(store: CacheStore, serialized: string): CacheStore {
