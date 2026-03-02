@@ -4,9 +4,9 @@ A library for executing evals for LLM-powered applications with built-in in-repo
 
 Features:
 
-* Supports any AI provider or model
+* Supports ai from vercel
+* Supports vitest
 * Supports any coding agent
-* Supports any testing library
 
 Eval results are cached in the repository (with a size limit) in-order for any coding agent or CICD pipeline to access the cache without complicated remote cache setups.
 

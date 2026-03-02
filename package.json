@@ -10,11 +10,17 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "author": "",
   "license": "MIT",
+  "dependencies": {
+      "ai": "^6.0.106"
+  },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@ai-sdk/openai": "^3.0.38",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }
