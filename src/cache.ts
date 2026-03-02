@@ -1,30 +1,35 @@
-import * as fs from "node:fs";
+import * as fs from "node:fs/promises";
+import { existsSync } from "node:fs";
 import * as path from "node:path";
 import type { LanguageModelV3GenerateResult } from "@ai-sdk/provider";
 
+type CacheEntry = { timestamp: number; value: LanguageModelV3GenerateResult };
+type CacheStore = Record<string, CacheEntry>;
 
 export class FileCache {
-  constructor(private readonly dir: string) {}
+  constructor(private readonly file: string) {}
 
-  private filePath(key: string): string {
-    return path.join(this.dir, `${key}.json`);
+  private async read(): Promise<CacheStore> {
+    if (!existsSync(this.file)) return {};
+
+    return JSON.parse(await fs.readFile(this.file, "utf-8")) as CacheStore;
   }
 
-  has(key: string): boolean {
-    return fs.existsSync(this.filePath(key));
+  async has(key: string): Promise<boolean> {
+    return key in (await this.read());
   }
 
-  get(key: string): LanguageModelV3GenerateResult | undefined {
-    const file = this.filePath(key);
-
-    if (!fs.existsSync(file)) return undefined;
-
-    const data = JSON.parse(fs.readFileSync(file, "utf-8")) as { timestamp: number; value: LanguageModelV3GenerateResult };
-    return data.value;
+  async get(key: string): Promise<LanguageModelV3GenerateResult | undefined> {
+    return (await this.read())[key]?.value;
   }
 
-  set(key: string, value: LanguageModelV3GenerateResult): void {
-    fs.mkdirSync(this.dir, { recursive: true });
-    fs.writeFileSync(this.filePath(key), JSON.stringify({ timestamp: Date.now(), value }));
+  async set(key: string, value: LanguageModelV3GenerateResult): Promise<void> {
+    await fs.mkdir(path.dirname(this.file), { recursive: true });
+
+    const store = await this.read();
+
+    store[key] = { timestamp: Date.now(), value };
+
+    await fs.writeFile(this.file, JSON.stringify(store, null, 2));
   }
 }

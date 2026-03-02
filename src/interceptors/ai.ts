@@ -3,7 +3,7 @@ import { FileCache } from "../cache";
 import { createHash } from "crypto";
 
 export interface WrapModelOptions {
-  cacheDir?: string;
+  cacheFile?: string;
 }
 
 const expectedSpecVersion = "v3";
@@ -34,9 +34,10 @@ export const ai = async (): Promise<typeof aiModule> => {
 
   function wrapModel(
     model: LanguageModelV3,
-    { cacheDir = ".eval-cache" }: WrapModelOptions = {}
+    { cacheFile }: WrapModelOptions = {}
   ): LanguageModelV3 {
-    const cache = new FileCache(cacheDir);
+    const resolvedCacheFile = cacheFile ?? `.eval-cache/${model.provider}/${model.modelId}.json`;
+    const cache = new FileCache(resolvedCacheFile);
 
     return aiModule.wrapLanguageModel({
       model,
@@ -44,7 +45,7 @@ export const ai = async (): Promise<typeof aiModule> => {
         specificationVersion: "v3",
         wrapGenerate: async ({ doGenerate, params }) => {
           const key = hashParams(params);
-          const cached = cache.get(key);
+          const cached = await cache.get(key);
 
           if (cached !== undefined) {
             console.log("Cache hit for params:", params, ". Returning cached result: ", cached);
@@ -56,7 +57,7 @@ export const ai = async (): Promise<typeof aiModule> => {
 
           console.log("Cache miss for params:", params, ". Caching result: ", result);
 
-          cache.set(key, result);
+          await cache.set(key, result);
 
           return result;
         },
