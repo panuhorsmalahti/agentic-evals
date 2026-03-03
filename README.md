@@ -2,6 +2,8 @@
 
 A library for executing evals for LLM-powered applications with built-in in-repo caching. Compatible with [vitest](https://vitest.dev) and [Jest](https://jestjs.io) and is designed to be used by any coding agent. The system under test is any Node.js application or module that utilizes LLMs for it's functionality.
 
+This library is not a prompt evals library, but rather tests a complete system that uses LLMs.
+
 Features:
 
 * Supports ai from vercel, support for other AI libraries WIP

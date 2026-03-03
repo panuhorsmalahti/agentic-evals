@@ -16,7 +16,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-     "ai": "^6.0.106"
+    "ai": "^6.0.106",
+    "openevals": "^0.1.4"
   },
   "devDependencies": {
     "@ai-sdk/openai": "^3.0.38",
