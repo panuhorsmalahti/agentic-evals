@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "author": "",
+  "author": "Panu Horsmalahti",
   "license": "MIT",
   "dependencies": {
     "ai": "^6.0.106",

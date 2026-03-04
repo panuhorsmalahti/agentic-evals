@@ -61,10 +61,25 @@ describe("ai", () => {
 });
 ```
 
-LLM-judge eval for this:
+LLM-judge eval for this, using a default judge. Note that both the application's LLM request *and* the LLM-judge request are cached.
 ```typescript
-// TODO
+    it("should eval result against coinciseness judge", async () => {
+      const input = "What is the capital of France?";
+      const output = await getResponse(input);
+      const model = openai("gpt-5.1");
+      const judge = await createConcisenessJudge(ai)(model)({ input, output });
+
+      expect(judge.output).toMatchInlineSnapshot(`"9"`);
+    });
 ```
+
+Creating a custom LLM judge:
+```typescript
+export const createConcisenessJudge: JudgeFactory = createJudge(CONCISENESS_PROMPT);
+```
+
+The package includes default LLM-judges using openevals. List of judges:
+* createConcisenessJudge
 
 ## Foreword
 

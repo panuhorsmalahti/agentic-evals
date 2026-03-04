@@ -4,11 +4,10 @@ import { openai } from "@ai-sdk/openai";
 
 const model = openai("gpt-5.1");
 
-export const getResponse = async () => {
-  console.log("Calling getResponse with model");
+export const getResponse = async (content: string) => {
   const systemPrompt = "You are a helpful assistant for testing AI models.";
   const messages: ModelMessage[] = [
-    { role: "user", content: "What is the capital of France?" },
+    { role: "user", content },
   ];
 
   const result = await generateText({
@@ -28,13 +27,10 @@ export const getResponse = async () => {
     },
   });
 
-  console.log("AI Response:", result.text);
-
   return result.text;
 }
 
 export const getResponseWithTools = async () => {
-  console.log("Calling getResponse with model");
   const systemPrompt = "You are a helpful assistant for testing AI models and you prefer to call tools.";
   const messages: ModelMessage[] = [
     { role: "user", content: "What is your street address?" },
@@ -54,8 +50,6 @@ export const getResponseWithTools = async () => {
     toolChoice: 'auto',
     maxOutputTokens: 1000,
   });
-
-  console.log("AI Response:", result.text);
 
   return result.text;
 }

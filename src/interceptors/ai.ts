@@ -51,8 +51,6 @@ export function hashParams(params: LanguageModelV3CallOptions): string {
     return value;
   });
 
-  console.log("Hashing params:", serialized);
-
   return createHash("sha256").update(serialized).digest("hex");
 }
 
@@ -76,14 +74,10 @@ export const ai = async (): Promise<typeof aiModule> => {
           const cached = await cache.get(key);
 
           if (cached !== undefined) {
-            console.log("Cache hit for params:", params, ". Returning cached result: ", cached);
-
             return cached;
           }
 
           const result = await doGenerate();
-
-          console.log("Cache miss for params:", params, ". Caching result: ", result);
 
           await cache.set(key, sanitizeResult(result));
 
@@ -94,8 +88,6 @@ export const ai = async (): Promise<typeof aiModule> => {
   }
 
   const generateText: any = async (params: Parameters<(typeof aiModule)["generateText"]>[0]) => {
-    console.log("Intercepted generateText call with params:", params);
-
     if (typeof params.model === "string") {
       throw new Error("Only LanguageModelV3 instances are supported in this interceptor. Please create a model instance using the provider (e.g., openai) and pass it to generateText.");
     }
@@ -105,7 +97,6 @@ export const ai = async (): Promise<typeof aiModule> => {
     }
 
     const wrappedModel = wrapModel(params.model);
-    console.log("Wrapped model");
 
     return aiModule.generateText({
       ...params,

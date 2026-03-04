@@ -1,6 +1,6 @@
 {
   "068daa53245e348cbabf94fab9e5456f9c4d59b2c7fff0f9299be4bebee36605": {
-    "timestamp": 1772491532802,
+    "timestamp": 1772655868699,
     "value": {
       "content": [
         {
@@ -55,17 +55,17 @@
         }
       },
       "response": {
-        "id": "resp_0a74b6b882293b7f0069a6130bd258819792d10855dd5f993c",
-        "timestamp": "2026-03-02T22:45:31.000Z",
+        "id": "resp_0c78d7b2510fc1160069a894fbc5a88194982292c921658af4",
+        "timestamp": "2026-03-04T20:24:27.000Z",
         "modelId": "gpt-5.1-2025-11-13",
         "headers": {
           "alt-svc": "h3=\":443\"; ma=86400",
           "cf-cache-status": "DYNAMIC",
-          "cf-ray": "9d63eea959fa8d65-HEL",
+          "cf-ray": "9d739ac4ec6e8da5-HEL",
           "connection": "keep-alive",
           "content-encoding": "br",
           "content-type": "application/json",
-          "date": "Mon, 02 Mar 2026 22:45:32 GMT",
+          "date": "Wed, 04 Mar 2026 20:24:28 GMT",
           "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
           "transfer-encoding": "chunked",
           "x-content-type-options": "nosniff",
@@ -75,18 +75,18 @@
           "x-ratelimit-remaining-tokens": "40000000",
           "x-ratelimit-reset-requests": "4ms",
           "x-ratelimit-reset-tokens": "0s",
-          "x-request-id": "req_bfb71e349ac04cfd9c78dd38ad362e7b"
+          "x-request-id": "req_218320fdc2144cfb9cd9fab5a0d52b58"
         },
         "body": {
-          "id": "resp_0a74b6b882293b7f0069a6130bd258819792d10855dd5f993c",
+          "id": "resp_0c78d7b2510fc1160069a894fbc5a88194982292c921658af4",
           "object": "response",
-          "created_at": 1772491531,
+          "created_at": 1772655867,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1772491532,
+          "completed_at": 1772655868,
           "error": null,
           "frequency_penalty": 0,
           "incomplete_details": null,
@@ -96,7 +96,7 @@
           "model": "gpt-5.1-2025-11-13",
           "output": [
             {
-              "id": "msg_0a74b6b882293b7f0069a6130c6734819781ad47de065de84a",
+              "id": "msg_0c78d7b2510fc1160069a894fc447881949d89d48076f3c299",
               "type": "message",
               "status": "completed",
               "content": [
@@ -151,7 +151,161 @@
       },
       "providerMetadata": {
         "openai": {
-          "responseId": "resp_0a74b6b882293b7f0069a6130bd258819792d10855dd5f993c",
+          "responseId": "resp_0c78d7b2510fc1160069a894fbc5a88194982292c921658af4",
+          "serviceTier": "default"
+        }
+      },
+      "warnings": []
+    }
+  },
+  "700695bea20f5349895451f454e18f4ad338175451338d85929de6757fd3c4e5": {
+    "timestamp": 1772655869855,
+    "value": {
+      "content": [
+        {
+          "type": "text",
+          "text": "9"
+        }
+      ],
+      "finishReason": {
+        "unified": "stop"
+      },
+      "usage": {
+        "inputTokens": {
+          "total": 344,
+          "noCache": 344,
+          "cacheRead": 0
+        },
+        "outputTokens": {
+          "total": 11,
+          "text": 11,
+          "reasoning": 0
+        },
+        "raw": {
+          "input_tokens": 344,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 11,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      },
+      "request": {
+        "body": {
+          "model": "gpt-5.1",
+          "input": [
+            {
+              "role": "user",
+              "content": [
+                {
+                  "type": "input_text",
+                  "text": "You are an expert data labeler evaluating model outputs for conciseness. Your task is to assign a score based on the following rubric:\n\n<Rubric>\n  A perfectly concise answer:\n  - Contains only the exact information requested.\n  - Uses the minimum number of words necessary to convey the complete answer.\n  - Omits pleasantries, hedging language, and unnecessary context.\n  - Excludes meta-commentary about the answer or the model's capabilities.\n  - Avoids redundant information or restatements.\n  - Does not include explanations unless explicitly requested.\n\n  When scoring, you should deduct points for:\n  - Introductory phrases like \"I believe,\" \"I think,\" or \"The answer is.\"\n  - Hedging language like \"probably,\" \"likely,\" or \"as far as I know.\"\n  - Unnecessary context or background information.\n  - Explanations when not requested.\n  - Follow-up questions or offers for more information.\n  - Redundant information or restatements.\n  - Polite phrases like \"hope this helps\" or \"let me know if you need anything else.\"\n</Rubric>\n\n<Instructions>\n  - Carefully read the input and output.\n  - Check for any unnecessary elements, particularly those mentioned in the <Rubric> above.\n  - The score should reflect how close the response comes to containing only the essential information requested based on the rubric above.\n</Instructions>\n\n<Reminder>\n  The goal is to reward responses that provide complete answers with absolutely no extraneous information.\n</Reminder>\n\n<input>\nWhat is the capital of France?\n</input>\n\n<output>\nThe capital of France is Paris.\n</output>\n"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "response": {
+        "id": "resp_049dc16257810c530069a894fce2a48190a936e1f86f16c612",
+        "timestamp": "2026-03-04T20:24:28.000Z",
+        "modelId": "gpt-5.1-2025-11-13",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cf-cache-status": "DYNAMIC",
+          "cf-ray": "9d739acbfaa28da5-HEL",
+          "connection": "keep-alive",
+          "content-encoding": "br",
+          "content-type": "application/json",
+          "date": "Wed, 04 Mar 2026 20:24:29 GMT",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "transfer-encoding": "chunked",
+          "x-content-type-options": "nosniff",
+          "x-ratelimit-limit-requests": "15000",
+          "x-ratelimit-limit-tokens": "40000000",
+          "x-ratelimit-remaining-requests": "14999",
+          "x-ratelimit-remaining-tokens": "40000000",
+          "x-ratelimit-reset-requests": "4ms",
+          "x-ratelimit-reset-tokens": "0s",
+          "x-request-id": "req_8b74313833bd455aba54db4a49e28711"
+        },
+        "body": {
+          "id": "resp_049dc16257810c530069a894fce2a48190a936e1f86f16c612",
+          "object": "response",
+          "created_at": 1772655868,
+          "status": "completed",
+          "background": false,
+          "billing": {
+            "payer": "developer"
+          },
+          "completed_at": 1772655869,
+          "error": null,
+          "frequency_penalty": 0,
+          "incomplete_details": null,
+          "instructions": null,
+          "max_output_tokens": null,
+          "max_tool_calls": null,
+          "model": "gpt-5.1-2025-11-13",
+          "output": [
+            {
+              "id": "msg_049dc16257810c530069a894fd74a48190b02d991d66c4ae65",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "9"
+                }
+              ],
+              "role": "assistant"
+            }
+          ],
+          "parallel_tool_calls": true,
+          "presence_penalty": 0,
+          "previous_response_id": null,
+          "prompt_cache_key": null,
+          "prompt_cache_retention": null,
+          "reasoning": {
+            "effort": "none",
+            "summary": null
+          },
+          "safety_identifier": null,
+          "service_tier": "default",
+          "store": true,
+          "temperature": 1,
+          "text": {
+            "format": {
+              "type": "text"
+            },
+            "verbosity": "medium"
+          },
+          "tool_choice": "auto",
+          "tools": [],
+          "top_logprobs": 0,
+          "top_p": 1,
+          "truncation": "disabled",
+          "usage": {
+            "input_tokens": 344,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 11,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 355
+          },
+          "user": null,
+          "metadata": {}
+        }
+      },
+      "providerMetadata": {
+        "openai": {
+          "responseId": "resp_049dc16257810c530069a894fce2a48190a936e1f86f16c612",
           "serviceTier": "default"
         }
       },
@@ -159,12 +313,12 @@
     }
   },
   "ce3bf220969f953fde5345c22ec46cf877b63204ad3b3a0ce1a3ee6b16836329": {
-    "timestamp": 1772491534161,
+    "timestamp": 1772655871040,
     "value": {
       "content": [
         {
           "type": "tool-call",
-          "toolCallId": "call_s4ecofcbVa573UQPLIdanTpE",
+          "toolCallId": "call_0sOVbmBi5CnigkyWz2wui124",
           "toolName": "getStreetAddress",
           "input": "{}"
         }
@@ -230,17 +384,17 @@
         }
       },
       "response": {
-        "id": "resp_0e5606032c4d35a40069a6130d4998819681947203c3e6f795",
-        "timestamp": "2026-03-02T22:45:33.000Z",
+        "id": "resp_007aa124bfa4178d0069a894fe0bcc81938fc002e2011825d0",
+        "timestamp": "2026-03-04T20:24:30.000Z",
         "modelId": "gpt-5.1-2025-11-13",
         "headers": {
           "alt-svc": "h3=\":443\"; ma=86400",
           "cf-cache-status": "DYNAMIC",
-          "cf-ray": "9d63eeb0bc828d65-HEL",
+          "cf-ray": "9d739ad339a58da5-HEL",
           "connection": "keep-alive",
           "content-encoding": "br",
           "content-type": "application/json",
-          "date": "Mon, 02 Mar 2026 22:45:34 GMT",
+          "date": "Wed, 04 Mar 2026 20:24:31 GMT",
           "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
           "transfer-encoding": "chunked",
           "x-content-type-options": "nosniff",
@@ -250,18 +404,18 @@
           "x-ratelimit-remaining-tokens": "40000000",
           "x-ratelimit-reset-requests": "4ms",
           "x-ratelimit-reset-tokens": "0s",
-          "x-request-id": "req_5d6e6c79d7454ce882447d172b87b2d2"
+          "x-request-id": "req_4bfe2d4c8c6a4dcca717f53229cdce71"
         },
         "body": {
-          "id": "resp_0e5606032c4d35a40069a6130d4998819681947203c3e6f795",
+          "id": "resp_007aa124bfa4178d0069a894fe0bcc81938fc002e2011825d0",
           "object": "response",
-          "created_at": 1772491533,
+          "created_at": 1772655870,
           "status": "completed",
           "background": false,
           "billing": {
             "payer": "developer"
           },
-          "completed_at": 1772491534,
+          "completed_at": 1772655870,
           "error": null,
           "frequency_penalty": 0,
           "incomplete_details": null,
@@ -271,11 +425,11 @@
           "model": "gpt-5.1-2025-11-13",
           "output": [
             {
-              "id": "fc_0e5606032c4d35a40069a6130dd6948196a3f31a5579d81a70",
+              "id": "fc_007aa124bfa4178d0069a894fea9108193bde338ea14c4d5bf",
               "type": "function_call",
               "status": "completed",
               "arguments": "{}",
-              "call_id": "call_s4ecofcbVa573UQPLIdanTpE",
+              "call_id": "call_0sOVbmBi5CnigkyWz2wui124",
               "name": "getStreetAddress"
             }
           ],
@@ -333,7 +487,7 @@
       },
       "providerMetadata": {
         "openai": {
-          "responseId": "resp_0e5606032c4d35a40069a6130d4998819681947203c3e6f795",
+          "responseId": "resp_007aa124bfa4178d0069a894fe0bcc81938fc002e2011825d0",
           "serviceTier": "default"
         }
       },
