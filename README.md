@@ -20,6 +20,8 @@ Work in progress:
 
 Eval results are cached in the repository (with a size limit) in order for any coding agent or CICD pipeline to access the cache without complicated remote cache setups. This allows coding agents to repeatedly call complex evals quickly.
 
+The cache location can optionally be configured.
+
 ## Example
 
 Example production code:
@@ -78,8 +80,18 @@ Creating a custom LLM judge:
 export const createConcisenessJudge: JudgeFactory = createJudge(CONCISENESS_PROMPT);
 ```
 
-The package includes default LLM-judges using openevals. List of judges:
-* createConcisenessJudge
+The package includes default LLM-judges using [openevals](https://github.com/langchain-ai/openevals) prompts. List of judges:
+* `createConcisenessJudge` - Evaluates whether the output is concise and to the point
+* `createCorrectnessJudge` - Evaluates whether the output is factually correct
+* `createHallucinationJudge` - Evaluates whether the output contains hallucinated information
+* `createCodeCorrectnessJudge` - Evaluates whether generated code is correct
+* `createCodeCorrectnessWithReferenceJudge` - Evaluates code correctness against a reference output
+* `createAnswerRelevanceJudge` - Evaluates whether the output is relevant to the input question
+* `createToxicityJudge` - Evaluates whether the output contains toxic content
+* `createPlanAdherenceJudge` - Evaluates whether the output adheres to a given plan
+* `createRagHelpfulnessJudge` - Evaluates whether a RAG response is helpful
+* `createRagGroundednessJudge` - Evaluates whether a RAG response is grounded in the retrieved context
+* `createRagRetrievalRelevanceJudge` - Evaluates whether retrieved documents are relevant to the query
 
 ## Foreword
 
