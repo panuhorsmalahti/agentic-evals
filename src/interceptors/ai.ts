@@ -2,6 +2,10 @@ import type { LanguageModelV3, LanguageModelV3CallOptions, LanguageModelV3Genera
 import { FileCache } from "../cache";
 import { createHash } from "crypto";
 
+/**
+ * Headers that may contain provider-specific or otherwise sensitive
+ * information and should not be written to the local eval cache.
+ */
 const SENSITIVE_HEADERS = new Set([
   "openai-organization",
   "openai-processing-ms",
@@ -11,6 +15,11 @@ const SENSITIVE_HEADERS = new Set([
   "set-cookie",
 ]);
 
+/**
+ * Creates a cache-safe copy of a `LanguageModelV3GenerateResult` by
+ * stripping provider metadata from content items and removing sensitive
+ * HTTP headers from the response.
+ */
 function sanitizeResult(result: LanguageModelV3GenerateResult): LanguageModelV3GenerateResult {
   return {
     ...result,
@@ -36,6 +45,13 @@ export interface WrapModelOptions {
 
 const expectedSpecVersion = "v3";
 
+/**
+ * Produces a deterministic hash for a set of model call options.
+ *
+ * Only parameters that can influence the model output are included in
+ * the hash; transient fields such as `abortSignal` and `headers` are
+ * deliberately omitted.
+ */
 export function hashParams(params: LanguageModelV3CallOptions): string {
   // Exclude fields that don't affect model output
   const { abortSignal: _a, headers: _h, ...rest } = params;
@@ -54,7 +70,11 @@ export function hashParams(params: LanguageModelV3CallOptions): string {
   return createHash("sha256").update(serialized).digest("hex");
 }
 
-
+/**
+ * Dynamically imports the `ai` SDK and returns a version whose
+ * `generateText` method adds disk-based caching and basic response
+ * sanitization for eval runs.
+ */
 export const ai = async (): Promise<typeof aiModule> => {
   const aiModule = await import("ai");
 

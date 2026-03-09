@@ -8,6 +8,14 @@ const DEFAULT_MAX_CACHE_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 type CacheEntry = { timestamp: number; value: LanguageModelV3GenerateResult };
 type CacheStore = Record<string, CacheEntry>;
 
+/**
+ * JSON-on-disk cache for `LanguageModelV3GenerateResult` values.
+ *
+ * Entries are keyed by an arbitrary string (typically a hash of model
+ * parameters) and stored together in a single file. When the serialized
+ * JSON exceeds `maxSize`, the oldest entries by `timestamp` are pruned
+ * to keep the cache file bounded.
+ */
 export class FileCache {
   private readonly maxSize: number;
 
