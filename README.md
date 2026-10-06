@@ -33,7 +33,8 @@ Options, given to `interceptors.ai(options)`, `register(options)` or `createCach
 | `cacheDir` | `AGENTIC_EVALS_CACHE_DIR` | `.eval-cache` | Where the cache is kept. |
 | `mode` | `AGENTIC_EVALS_CACHE_MODE` | `record` | `record` answers from the cache and stores each miss. `replay` answers from the cache and throws on a miss, so no model is called. `off` calls the model every time. |
 | `maxSize` | | 10 MB | The largest size of one model's directory. The oldest responses are removed first. |
-| `normalizeKey` | | | A function that rewrites the JSON a key is hashed from. Replace the values that change from run to run, such as today's date, generated ids and temporary paths. The model still receives the original call. |
+| `variables` | | | Patterns for values that change from run to run, such as generated ids, today's date and temporary paths, by name. Each value becomes a placeholder in the key and in the stored response, and a replay puts back the current run's value. |
+| `normalizeKey` | | | A function that rewrites the JSON a key is hashed from, after `variables`. It changes the key only: a replayed response keeps the values it was recorded with. The model still receives the original call. |
 
 `cacheStats()` returns the hits, the misses and `savedMs`, the recorded duration of the calls the cache answered.
 
@@ -44,7 +45,12 @@ When the system under test runs in its own process, a module mock cannot reach i
 ```typescript
 import { register } from "agentic-evals/register";
 
-register({ normalizeKey: (json) => json.replace(/\d{4}-\d{2}-\d{2}/g, "<date>") });
+register({
+  variables: {
+    uuid: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
+    date: /\d{4}-\d{2}-\d{2}/,
+  },
+});
 
 await import("./server");
 ```

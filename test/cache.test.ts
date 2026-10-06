@@ -221,6 +221,69 @@ describe("the cache in front of generateText", () => {
   });
 });
 
+describe("variables", () => {
+  const uuid = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
+  const firstId = "11111111-1111-4111-8111-111111111111";
+  const secondId = "22222222-2222-4222-8222-222222222222";
+
+  const readAttachment = (id: string) =>
+    textResult("", {
+      content: [{ type: "tool-call", toolCallId: "call_1", toolName: "readAttachment", input: JSON.stringify({ id }) }],
+      finishReason: { unified: "tool-calls", raw: "tool_use" },
+    });
+
+  it("replays a response with this run's value in place of the recorded one", async () => {
+    const recording = new MockLanguageModelV4({ doGenerate: readAttachment(firstId) });
+    await cachedAi({ variables: { uuid } }).generateText({ model: recording, prompt: `Read attachment ${firstId}.` });
+
+    const replaying = new MockLanguageModelV4();
+    const result = await cachedAi({ mode: "replay", variables: { uuid } }).generateText({
+      model: replaying,
+      prompt: `Read attachment ${secondId}.`,
+    });
+
+    expect(result.toolCalls[0].input).toEqual({ id: secondId });
+  });
+
+  it("stores the placeholder, not the value", async () => {
+    const model = new MockLanguageModelV4({ doGenerate: readAttachment(firstId) });
+    await cachedAi({ variables: { uuid } }).generateText({ model, prompt: `Read attachment ${firstId}.` });
+
+    const stored = fs.readFileSync(entryFiles(model)[0], "utf-8");
+    expect(stored).toContain("«uuid:1»");
+    expect(stored).not.toContain(firstId);
+  });
+
+  it("replays a recording made in another directory", async () => {
+    const tmp = /\/(?:var\/folders\/\w+\/\w+\/T|tmp)(?=\/workspace)/;
+    const recording = new MockLanguageModelV4({ doGenerate: textResult("Wrote /var/folders/ab/cd/T/workspace/notes.txt") });
+    await cachedAi({ variables: { tmp } }).generateText({
+      model: recording,
+      system: "Your workspace is /var/folders/ab/cd/T/workspace.",
+      prompt: "Write notes.",
+    });
+
+    const result = await cachedAi({ mode: "replay", variables: { tmp } }).generateText({
+      model: new MockLanguageModelV4(),
+      system: "Your workspace is /tmp/workspace.",
+      prompt: "Write notes.",
+    });
+
+    expect(result.text).toBe("Wrote /tmp/workspace/notes.txt");
+  });
+
+  it("tells one value used twice from two different values", async () => {
+    const model = new MockLanguageModelV4({ doGenerate: [textResult("same"), textResult("different")] });
+    const ai = cachedAi({ variables: { uuid } });
+
+    await ai.generateText({ model, prompt: `Compare ${firstId} with ${firstId}.` });
+    const result = await ai.generateText({ model, prompt: `Compare ${firstId} with ${secondId}.` });
+
+    expect(result.text).toBe("different");
+    expect(model.doGenerateCalls).toHaveLength(2);
+  });
+});
+
 describe("the cache in front of generateObject", () => {
   it("answers the same call from the cache", async () => {
     const model = new MockLanguageModelV4({ doGenerate: textResult('{"city":"Paris"}') });
