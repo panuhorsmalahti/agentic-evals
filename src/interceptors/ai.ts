@@ -1,131 +1,35 @@
-import type { LanguageModelV3, LanguageModelV3CallOptions, LanguageModelV3GenerateResult } from "@ai-sdk/provider";
-import { FileCache } from "../cache";
-import { createHash } from "crypto";
+import type * as Ai from "ai";
+import { createCacheMiddleware, type CacheOptions } from "../cache-middleware";
+
+type AiModule = typeof Ai;
 
 /**
- * Headers that may contain provider-specific or otherwise sensitive
- * information and should not be written to the local eval cache.
+ * Returns `aiModule` with a cache in front of the model that `generateText` and `generateObject`
+ * call. Every other export is the original.
  */
-const SENSITIVE_HEADERS = new Set([
-  "openai-organization",
-  "openai-processing-ms",
-  "openai-project",
-  "openai-version",
-  "server",
-  "set-cookie",
-]);
+export function interceptAi<T extends AiModule>(aiModule: T, options: CacheOptions = {}): T {
+  const middleware = createCacheMiddleware(options);
 
-/**
- * Creates a cache-safe copy of a `LanguageModelV3GenerateResult` by
- * stripping provider metadata from content items and removing sensitive
- * HTTP headers from the response.
- */
-function sanitizeResult(result: LanguageModelV3GenerateResult): LanguageModelV3GenerateResult {
-  return {
-    ...result,
-    content: result.content.map(({ providerMetadata: _, ...item }) => item as typeof item),
-    response: result.response
-      ? {
-          ...result.response,
-          headers: result.response.headers
-            ? Object.fromEntries(
-                Object.entries(result.response.headers).filter(
-                  ([key]) => !SENSITIVE_HEADERS.has(key.toLowerCase())
-                )
-              )
-            : undefined,
-        }
-      : undefined,
-  };
-}
-
-export interface WrapModelOptions {
-  cacheFile?: string;
-}
-
-const expectedSpecVersion = "v3";
-
-/**
- * Produces a deterministic hash for a set of model call options.
- *
- * Only parameters that can influence the model output are included in
- * the hash; transient fields such as `abortSignal` and `headers` are
- * deliberately omitted.
- */
-export function hashParams(params: LanguageModelV3CallOptions): string {
-  // Exclude fields that don't affect model output
-  const { abortSignal: _a, headers: _h, ...rest } = params;
-
-  const serialized = JSON.stringify(rest, (_key, value: unknown) => {
-    if (value !== null && typeof value === "object" && !Array.isArray(value)) {
-      return Object.fromEntries(
-        Object.entries(value as Record<string, unknown>).sort(([a], [b]) =>
-          a.localeCompare(b)
-        )
+  const withCache = (model: Ai.LanguageModel) => {
+    if (typeof model === "string") {
+      throw new Error(
+        'agentic-evals: pass a model instance created with a provider, such as openai("gpt-5.1"), not a model id.'
       );
     }
-    return value;
-  });
+    return aiModule.wrapLanguageModel({ model, middleware });
+  };
 
-  return createHash("sha256").update(serialized).digest("hex");
+  const generateText = ((params: Parameters<AiModule["generateText"]>[0]) =>
+    aiModule.generateText({ ...params, model: withCache(params.model) })) as AiModule["generateText"];
+
+  const generateObject = ((params: Parameters<AiModule["generateObject"]>[0]) =>
+    aiModule.generateObject({ ...params, model: withCache(params.model) })) as AiModule["generateObject"];
+
+  return { ...aiModule, generateText, generateObject };
 }
 
 /**
- * Dynamically imports the `ai` SDK and returns a version whose
- * `generateText` method adds disk-based caching and basic response
- * sanitization for eval runs.
+ * Imports `ai` and returns it with the cache in front of the model, for a test runner's module
+ * mock such as `vi.mock("ai", () => interceptors.ai())`.
  */
-export const ai = async (): Promise<typeof aiModule> => {
-  const aiModule = await import("ai");
-
-  function wrapModel(
-    model: LanguageModelV3,
-    { cacheFile }: WrapModelOptions = {}
-  ): LanguageModelV3 {
-    const resolvedCacheFile = cacheFile ?? `.eval-cache/${model.provider}/${model.modelId}.json`;
-    const cache = new FileCache(resolvedCacheFile);
-
-    return aiModule.wrapLanguageModel({
-      model,
-      middleware: {
-        specificationVersion: "v3",
-        wrapGenerate: async ({ doGenerate, params }) => {
-          const key = hashParams(params);
-          const cached = await cache.get(key);
-
-          if (cached !== undefined) {
-            return cached;
-          }
-
-          const result = await doGenerate();
-
-          await cache.set(key, sanitizeResult(result));
-
-          return result;
-        },
-      },
-    });
-  }
-
-  const generateText: any = async (params: Parameters<(typeof aiModule)["generateText"]>[0]) => {
-    if (typeof params.model === "string") {
-      throw new Error("Only LanguageModelV3 instances are supported in this interceptor. Please create a model instance using the provider (e.g., openai) and pass it to generateText.");
-    }
-
-    if (params.model.specificationVersion !== expectedSpecVersion) {
-      throw new Error(`Unsupported model specification version: ${params.model.specificationVersion}. Expected ${expectedSpecVersion}.`);
-    }
-
-    const wrappedModel = wrapModel(params.model);
-
-    return aiModule.generateText({
-      ...params,
-      model: wrappedModel,
-    });
-  };
-
-  return {
-    ...aiModule,
-    generateText
-  };
-};
+export const ai = async (options?: CacheOptions): Promise<AiModule> => interceptAi(await import("ai"), options);
