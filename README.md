@@ -6,8 +6,9 @@ This library is not a prompt evals library, but rather tests a complete system t
 
 Features:
 
-* Supports ai from vercel, support for other AI libraries WIP
+* Supports `generateText` and `generateObject` from vercel's `ai` (AI SDK 7), support for other AI libraries WIP
 * Supports any testing library
+* Supports a system under test in its own process, such as a server started by an end-to-end suite
 * Supports any coding agent
 
 Benefits:
@@ -16,11 +17,39 @@ Benefits:
 
 Work in progress:
 * Support global model ids in the "ai" interceptor
+* Support streaming calls (`streamText`, `streamObject`), which call the model directly
 * Support other AI SDKs/libraries
 
 Eval results are cached in the repository (with a size limit) in order for any coding agent or CICD pipeline to access the cache without complicated remote cache setups. This allows coding agents to repeatedly call complex evals quickly.
 
-The cache location can optionally be configured.
+## Cache
+
+Every response is a JSON file at `.eval-cache/<provider>/<model>/<key>.json`. The key is a hash of every call option that can change the response, so a changed prompt, tool or setting calls the model again. Commit the directory. Each response is its own file, so two branches that record new responses merge without a conflict.
+
+Options, given to `interceptors.ai(options)`, `register(options)` or `createCacheMiddleware(options)`:
+
+| Option | Environment variable | Default | |
+|--------|----------------------|---------|-|
+| `cacheDir` | `AGENTIC_EVALS_CACHE_DIR` | `.eval-cache` | Where the cache is kept. |
+| `mode` | `AGENTIC_EVALS_CACHE_MODE` | `record` | `record` answers from the cache and stores each miss. `replay` answers from the cache and throws on a miss, so no model is called. `off` calls the model every time. |
+| `maxSize` | | 10 MB | The largest size of one model's directory. The oldest responses are removed first. |
+| `normalizeKey` | | | A function that rewrites the JSON a key is hashed from. Replace the values that change from run to run, such as today's date, generated ids and temporary paths. The model still receives the original call. |
+
+`cacheStats()` returns the hits, the misses and `savedMs`, the recorded duration of the calls the cache answered.
+
+## End-to-end tests
+
+When the system under test runs in its own process, a module mock cannot reach it. Call `register()` in that process before anything loads `ai`, for example in the entry file the suite starts:
+
+```typescript
+import { register } from "agentic-evals/register";
+
+register({ normalizeKey: (json) => json.replace(/\d{4}-\d{2}-\d{2}/g, "<date>") });
+
+await import("./server");
+```
+
+Every later `require("ai")` and `import "ai"` in that process gets `ai` with the cache in front of the model. `register()` needs Node.js 22.15 or later.
 
 ## Example
 
@@ -47,7 +76,7 @@ import { describe, it, expect, vi } from "vitest";
 
 // vercel's "ai" package is mocked to cache LLM responses, nothing else is needed in setup
 vi.mock("ai", async () => {
-  const { interceptors } = await import("../../src/index");
+  const { interceptors } = await import("agentic-evals");
 
   return await interceptors.ai();
 });
