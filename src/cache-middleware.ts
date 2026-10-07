@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import * as path from "node:path";
 import type { LanguageModelMiddleware } from "ai";
 import { FileCache } from "./cache";
+import { bindVariables, fromPlaceholders, toPlaceholders, type Bindings } from "./variables";
 
 type GenerateOptions = Parameters<NonNullable<LanguageModelMiddleware["wrapGenerate"]>>[0];
 type CallOptions = GenerateOptions["params"];
@@ -28,9 +29,16 @@ export interface CacheOptions {
   /** The largest size in bytes of one model's directory. The oldest entries are removed first. */
   maxSize?: number;
   /**
-   * Rewrites the JSON that a call's key is hashed from. Use it to replace values that change from
-   * run to run, such as the date, generated ids and temporary paths, so that the same call finds
-   * the same entry. The model still receives the original call.
+   * Values that differ from run to run, such as generated ids, the date or a temporary directory,
+   * each found by a pattern. In the key, each value becomes a placeholder, so two calls that differ
+   * only in those values find the same entry. A recorded response that repeats one of the values
+   * gets this call's value on replay.
+   */
+  variables?: Record<string, RegExp>;
+  /**
+   * Rewrites the JSON that a call's key is hashed from, after `variables`. The rewrite applies to
+   * the key only: a replayed response keeps the values it was recorded with. The model still
+   * receives the original call.
    */
   normalizeKey?: (json: string) => string;
 }
@@ -73,7 +81,7 @@ export function resolveCacheOptions(options: CacheOptions = {}): CacheOptions & 
  * or setting is a miss. A streaming call passes through to the model.
  */
 export function createCacheMiddleware(options: CacheOptions = {}): LanguageModelMiddleware {
-  const { cacheDir, mode, maxSize, normalizeKey } = resolveCacheOptions(options);
+  const { cacheDir, mode, maxSize, variables = {}, normalizeKey } = resolveCacheOptions(options);
   const caches = new Map<string, FileCache<GenerateResult>>();
 
   const cacheFor = (model: Model) => {
@@ -91,13 +99,15 @@ export function createCacheMiddleware(options: CacheOptions = {}): LanguageModel
       if (mode === "off") return doGenerate();
 
       const cache = cacheFor(model);
-      const key = hashCallOptions(params, normalizeKey);
+      const { key, bindings } = callKey(params, variables, normalizeKey);
+      const replay = (stored: GenerateResult) =>
+        fromStored(JSON.parse(fromPlaceholders(JSON.stringify(stored), bindings)) as GenerateResult);
       const entry = await cache.get(key);
 
       if (entry) {
         stats.hits += 1;
         stats.savedMs += entry.durationMs;
-        return fromStored(entry.result);
+        return replay(entry.result);
       }
 
       stats.misses += 1;
@@ -111,20 +121,25 @@ export function createCacheMiddleware(options: CacheOptions = {}): LanguageModel
       const result = await doGenerate();
       const durationMs = Math.round(performance.now() - started);
 
-      const stored = toStored(result);
+      const stored = JSON.parse(toPlaceholders(JSON.stringify(toStored(result)), bindings)) as GenerateResult;
       await cache.set(key, { timestamp: Date.now(), durationMs, result: stored });
 
       // The recording run gets exactly what a replay will get, so both build the same next request.
-      return fromStored(JSON.parse(JSON.stringify(stored)) as GenerateResult);
+      return replay(stored);
     },
   };
 }
 
 /**
- * A stable hash of the options that can change a model's response. The abort signal and the
- * request headers are left out, and object keys are sorted by code point.
+ * A stable hash of the options that can change a model's response, and the run-specific values
+ * the variables found in them. The abort signal and the request headers are left out, and object
+ * keys are sorted by code point.
  */
-export function hashCallOptions(params: CallOptions, normalizeKey?: (json: string) => string): string {
+export function callKey(
+  params: CallOptions,
+  variables: Record<string, RegExp> = {},
+  normalizeKey?: (json: string) => string
+): { key: string; bindings: Bindings } {
   const { abortSignal: _abortSignal, headers: _headers, ...rest } = params;
 
   const json = JSON.stringify(rest, (_key, value: unknown) => {
@@ -137,9 +152,12 @@ export function hashCallOptions(params: CallOptions, normalizeKey?: (json: strin
     return value;
   });
 
-  return createHash("sha256")
-    .update(normalizeKey ? normalizeKey(json) : json)
+  const bound = bindVariables(json, variables);
+  const key = createHash("sha256")
+    .update(normalizeKey ? normalizeKey(bound.json) : bound.json)
     .digest("hex");
+
+  return { key, bindings: bound.bindings };
 }
 
 /**
